@@ -19,5 +19,6 @@ watchPatterns = [
 ]
 
 [deploy]
-startCommand = "uvicorn main:app --host 0.0.0.0 --port 8080 --loop uvloop"
+# Must listen on $PORT — Railway routes health checks and traffic to that port, not 8080.
+startCommand = "sh -c 'exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080} --loop uvloop --proxy-headers --forwarded-allow-ips \"*\"'"
 healthcheckPath = "/health"
