@@ -6,7 +6,23 @@ Handles phone calls and text messaging with the same personality as web chat.
 import sys
 import os
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+def _ensure_packages_import_path() -> None:
+    # In Docker, main.py is /app/main.py — two dirnames yields "/", not /app. Walk up
+    # until we find packages/ (also works for local apps/voice-sms layout).
+    d = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(8):
+        if os.path.isdir(os.path.join(d, "packages")):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+            return
+        parent = os.path.dirname(d)
+        if parent == d:
+            break
+        d = parent
+
+
+_ensure_packages_import_path()
 
 from fastapi import FastAPI, WebSocket, Request
 from fastapi.responses import Response
