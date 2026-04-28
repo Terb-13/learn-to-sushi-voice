@@ -31,9 +31,10 @@ async def voice_webhook(request: Request):
 
         response = VoiceResponse()
         connect = Connect()
+        # Connect+<Stream>: only inbound_track allowed (both_tracks is for <Start>).
         stream = Stream(
             url=f"wss://{host}/voice-stream/ws",
-            track="both_tracks",
+            track="inbound_track",
         )
         connect.append(stream)
         response.append(connect)
