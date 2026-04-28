@@ -1,0 +1,23 @@
+# Voice + SMS (shared monorepo with packages/core)
+#
+# Dashboard (Service → Settings):
+# - Root directory: leave EMPTY or “/” (repository root). Required so the deploy
+#   includes apps/voice-sms AND packages/ for Docker COPY.
+#   Setting only apps/voice-sms (isolated monorepo) omits ../packages and breaks the image.
+# - Config as code file: set to /railway.toml  (leading slash = path from repo root).
+#   The config file does NOT follow Root Directory; if this path is wrong, snapshot
+#   fails with “config file railway.toml does not exist”.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+watchPatterns = [
+  "apps/voice-sms/**",
+  "packages/**",
+  "Dockerfile",
+  "railway.toml",
+]
+
+[deploy]
+startCommand = "uvicorn main:app --host 0.0.0.0 --port 8080 --loop uvloop"
+healthcheckPath = "/health"

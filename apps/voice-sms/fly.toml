@@ -1,31 +1,15 @@
 app = "learn-to-sushi-voice"
-primary_region = "ord"
 
 [build]
+  # Build context must be repo root — same as Railway.
+  #   fly deploy . --config apps/voice-sms/fly.toml
   dockerfile = "Dockerfile"
 
 [env]
   PORT = "8080"
 
-[[services]]
-  protocol = "tcp"
+[http_service]
   internal_port = 8080
-
-  [[services.ports]]
-    port = 80
-    handlers = ["http"]
-    force_https = true
-
-  [[services.ports]]
-    port = 443
-    handlers = ["tls", "http"]
-
-[services.concurrency]
-  type = "connections"
-  hard_limit = 100
-  soft_limit = 80
-
-[[vm]]
-  cpu_kind = "shared"
-  cpus = 1
-  memory_mb = 512
+  force_https = true
+  auto_stop_machines = "off"
+  auto_start_machines = true

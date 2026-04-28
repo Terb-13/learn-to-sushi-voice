@@ -9,16 +9,24 @@ from typing import List, Dict, Any, Optional
 import httpx
 from openai import AsyncOpenAI  # xAI is OpenAI-compatible
 
-XAI_API_KEY = os.getenv("XAI_API_KEY_LTS")
 XAI_BASE_URL = "https://api.x.ai/v1"
 
 # Voice Agent model
 VOICE_MODEL = "grok-voice-think-fast-1.0"
 
-client = AsyncOpenAI(
-    api_key=XAI_API_KEY,
-    base_url=XAI_BASE_URL,
-)
+_client: Optional[AsyncOpenAI] = None
+
+
+def _get_client() -> Optional[AsyncOpenAI]:
+    """Lazy init so importing the app does not require XAI_API_KEY_LTS at boot."""
+    global _client
+    if _client is not None:
+        return _client
+    key = os.getenv("XAI_API_KEY_LTS")
+    if not key:
+        return None
+    _client = AsyncOpenAI(api_key=key, base_url=XAI_BASE_URL)
+    return _client
 
 
 async def chat_completion(
@@ -28,6 +36,10 @@ async def chat_completion(
 ) -> str:
     """Standard chat completion for web chat."""
     try:
+        client = _get_client()
+        if client is None:
+            print("Grok chat error: XAI_API_KEY_LTS is not set")
+            return "I'm having a quick moment — please try again in a second!"
         response = await client.chat.completions.create(
             model=model,
             messages=messages,
@@ -72,3 +84,15 @@ async def get_voice_agent_session_instructions() -> Dict[str, Any]:
         },
         "tools": []  # Add tools here if needed
     }
+
+
+class GrokClient:
+    """Instance API used by SMS and other handlers."""
+
+    async def chat_completion(
+        self,
+        messages: List[Dict[str, str]],
+        tools: Optional[List[Dict]] = None,
+        model: str = "grok-4.20-0309-reasoning",
+    ) -> str:
+        return await chat_completion(messages, tools=tools, model=model)
