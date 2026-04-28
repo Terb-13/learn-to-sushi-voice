@@ -64,25 +64,29 @@ async def chat_completion(
 
 async def get_voice_agent_session_instructions() -> Dict[str, Any]:
     """
-    Returns the session configuration for xAI Voice Agent API.
-    This is sent when establishing the WebSocket connection.
+    Returns the session payload for session.update xAI Voice Realtime (OpenAI-compatible).
+    Model is selected via WS URL (?model=...), not inside session.
+
+    Twilio Media Streams sends G.711 μ-law at 8 kHz. xAI emits PCM16; we negotiate 8 kHz PCM
+    and transcode μ-law ↔ PCM in the voice bridge (see voice_stream.py).
     """
     return {
-        "model": VOICE_MODEL,
-        "instructions": """You are Sensei from Learn to Sushi — warm, joyful, and helpful. 
-        Follow the brand guideline: warm, fun, family-positive. 
+        "instructions": """You are Sensei from Learn to Sushi — warm, joyful, and helpful.
+        Follow the brand guideline: warm, fun, family-positive.
         Never say 'conveyor belt' for the Sushi River — it's a beautiful self-serve wavy table with 5 rows.
         Keep responses natural and conversational for voice.""",
-        "voice": "eve",  # or ara, rex, sal, leo
-        "input_audio_format": "pcm16",
-        "output_audio_format": "pcm16",
+        "voice": "eve",
         "turn_detection": {
             "type": "server_vad",
             "threshold": 0.5,
             "prefix_padding_ms": 300,
-            "silence_duration_ms": 500
+            "silence_duration_ms": 500,
         },
-        "tools": []  # Add tools here if needed
+        "audio": {
+            "input": {"format": {"type": "audio/pcm", "rate": 8000}},
+            "output": {"format": {"type": "audio/pcm", "rate": 8000}},
+        },
+        "tools": [],
     }
 
 

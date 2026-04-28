@@ -30,6 +30,14 @@ async def voice_webhook(request: Request):
             raise ValueError("Missing Host header")
 
         response = VoiceResponse()
+        # Twilio TTS plays first so the caller always hears something, even if the AI stream fails.
+        response.say(
+            (
+                "Hi, welcome to Learn to Sushi! "
+                "Connecting you with Sensei now—you should hear them in just a moment."
+            ),
+            voice="Polly.Joanna",
+        )
         connect = Connect()
         # Connect+<Stream>: only inbound_track allowed (both_tracks is for <Start>).
         stream = Stream(
