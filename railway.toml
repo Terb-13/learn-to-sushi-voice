@@ -19,6 +19,8 @@ watchPatterns = [
 ]
 
 [deploy]
-# Must listen on $PORT — Railway routes health checks and traffic to that port, not 8080.
-startCommand = "sh -c 'exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080} --loop uvloop --proxy-headers --forwarded-allow-ips \"*\"'"
+# Do NOT set startCommand here for this image unless you use a shell command where
+# $PORT expands (e.g. sh -c "uvicorn … --port $PORT …"). Using sh -c '…${PORT:-8080}…'
+# breaks: single quotes prevent expansion, uvicorn gets a non-numeric port and exits.
+# The Dockerfile CMD runs uvicorn with correct ${PORT:-8080} expansion.
 healthcheckPath = "/health"
