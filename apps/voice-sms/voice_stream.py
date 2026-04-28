@@ -50,7 +50,7 @@ async def voice_stream(websocket: WebSocket):
     try:
         async with websockets.connect(
             XAI_VOICE_WS,
-            additional_headers={"Authorization": f"Bearer {XAI_API_KEY}"},
+            extra_headers={"Authorization": f"Bearer {XAI_API_KEY}"},
         ) as xai_ws:
             session_config = await get_voice_agent_session_instructions()
             await xai_ws.send(
