@@ -24,6 +24,13 @@ def _ensure_packages_import_path() -> None:
 
 _ensure_packages_import_path()
 
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)s [%(name)s] %(message)s",
+)
+
 from fastapi import FastAPI, WebSocket, Request
 from fastapi.responses import Response
 from dotenv import load_dotenv

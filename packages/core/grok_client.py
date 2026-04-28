@@ -67,8 +67,8 @@ async def get_voice_agent_session_instructions() -> Dict[str, Any]:
     Returns the session payload for session.update xAI Voice Realtime (OpenAI-compatible).
     Model is selected via WS URL (?model=...), not inside session.
 
-    Twilio Media Streams sends G.711 μ-law at 8 kHz. xAI emits PCM16; we negotiate 8 kHz PCM
-    and transcode μ-law ↔ PCM in the voice bridge (see voice_stream.py).
+    Twilio is 8 kHz mulaw on the PSTN bridge; Grok Voice realtime emits PCM like the hosted
+    sample at 24000 Hz. We negotiate pcm/24000 here and resample ↔ 8 kHz in voice_stream.
     """
     return {
         "instructions": """You are Sensei from Learn to Sushi — warm, joyful, and helpful.
@@ -83,8 +83,8 @@ async def get_voice_agent_session_instructions() -> Dict[str, Any]:
             "silence_duration_ms": 500,
         },
         "audio": {
-            "input": {"format": {"type": "audio/pcm", "rate": 8000}},
-            "output": {"format": {"type": "audio/pcm", "rate": 8000}},
+            "input": {"format": {"type": "audio/pcm", "rate": 24000}},
+            "output": {"format": {"type": "audio/pcm", "rate": 24000}},
         },
         "tools": [],
     }
